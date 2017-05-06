@@ -4,7 +4,9 @@ import ttk
 from tkFileDialog   import askopenfilename
 import os
 from  SimpleCV import *
+import serial
 
+#ardu = serial.Serial('/dev/ttyUSB0', 9600)
 
 #
 box = Tk()
@@ -12,20 +14,20 @@ box = Tk()
 # frame1
 x = StringVar()
 var =IntVar()
-
+ardu = serial.Serial('/dev/ttyUSB0', 9600)
             
 def openGripper(event):
-    print "gripper Opening"
+    #print "gripper Opening"
     lb.insert(END, "Gripper opening")
-
-
+    ardu.write('1')
+    
 def closegripper(event):
-    print "Gripper closing"
+    #print "Gripper closing"
     lb.insert(END, "Gripper closing")
-
+    ardu.write('2')
 
 def StopRot(event):
-    print "stopping"    
+    #print "stopping"    
     lb.insert(END,"Stopping all processes")
 
 def exit(event):
@@ -56,11 +58,13 @@ def smallScreen(event):
 def LEDon():
     print "LED ON"
     lb.insert(END, "LED on")
+    ardu.write('o')
     #os.system("cvlc  %s" %("vid.mp4"))
    
 
 def LEDoff():
     print("LED OFF")
+    ardu.write('l')
     lb.insert(END, "LED off")
 
 def ClockWise(event):
@@ -73,7 +77,7 @@ def antiCW(event):
 
 
 def doNothing(event):
-    print("Do nothing");
+    #print("Do nothing");
     lb.insert(END, "Do nothing")
 
 def HelpSheet():
@@ -150,19 +154,23 @@ def menu():
 
 
 def TitleBar():
-                f = Frame(box, width = 300, height = 450)
-                xf = Frame(f, relief = GROOVE, borderwidth = 2.5)
+    f = Frame(box, width = 300, height = 450)
+    xf = Frame(f, relief = GROOVE, borderwidth = 2.5)
                 #heading = Label(xf,text = "Team Ahti, ROV control System", font = ("aerial", 12)).grid()
-                system = Label(xf,text = "System controls").grid(row = 0, column = 0)
-                ledon = Button(xf,text = "LED ON", command = LEDon).grid(row = 1,column = 0 , pady =5)
-                ledoff = Button(xf,text = "LED OFF", command = LEDoff).grid(row = 2,column = 0,pady = 5)
-               
+    system = Label(xf,text = "System controls").grid(row = 0, column = 0)
+    ledon = Button(xf,text = "LED ON", command = LEDon).grid(row = 1,column = 0 , pady =5)
+    ledoff = Button(xf,text = "LED OFF", command = LEDoff).grid(row = 2,column = 0,pady = 5)    
+    resoLabel = Label(xf,text = "Console Resolution").grid(row = 39, pady = 10)
+    entry = Entry(xf,textvariable = x).grid(row = 40)
+    resolutionButton = Button(xf, text = "Get Res", command = setRes).grid(row = 41,pady = 5)    
+    refresh = Button(xf, text = "Refresh console", command = fresh).grid()
+    xf.place(x = 0, y = 1)
+    f.pack(side = LEFT, padx= 20)
 
-                resoLabel = Label(xf,text = "Console Resolution").grid(row = 39, pady = 10)
-                entry = Entry(xf,textvariable = x).grid(row = 40)
-                resolutionButton = Button(xf, text = "Get Res", command = setRes).grid(row = 41,pady = 5)
-                xf.place(x = 0, y = 1)
-                f.pack(side = LEFT, padx= 20)
+
+def fresh():
+    lb.delete(0, END)
+
 
 def input_choice():
          
@@ -175,20 +183,37 @@ def input_choice():
 
 def Control_choice():
 
-                g = Frame(box, width = 300, height = 450)
-                xg = Frame(g, relief=GROOVE, borderwidth = 2.5)
-                heading = Label(xg,text = "Choice of controlling the ROV ").grid()
-                radio = Radiobutton(xg, text = "Keyboard control", variable = var, value = 1, justify = LEFT, command = input_choice).grid(pady = 10)
-                radio2 = Radiobutton(xg, text = "On Screen control",variable = var,  value = 2, justify = CENTER, command = input_choice).grid(pady = 10)
-                xg.place(x = 1, y = 0)
-                g.pack(side = LEFT)
+    g = Frame(box, width = 500, height = 450)
+    xg = Frame(g, relief=GROOVE, borderwidth = 2.5)
+    title = Label(xg,text = "Optional onscreen controls").pack()
+    ##
+    openGrp = Button(xg,text = "Open gripper")
+    close = Button(xg,text = "Close gripper")
+    openGrp.bind("<ButtonPress-1>", openGripper)
+    openGrp.bind("<ButtonRelease-1>", doNothing)
+    close.bind("<ButtonPress-1>", closegripper)
+    close.bind("<ButtonRelease-1>", doNothing)
+    openGrp.pack(padx =10, pady =10, side = RIGHT)
+    close.pack(padx =10, pady =10, side = LEFT)
+    ##
+    ##
+    rotGrp = Button(xg,text = "Clock Wise")
+    rotGrp2 = Button(xg,text = "Anti-Clock wise")
+    rotGrp.bind("<ButtonPress-1>", ClockWise)
+    rotGrp.bind("<ButtonRelease-1>", doNothing)
+    rotGrp2.bind("<ButtonPress-1>", antiCW)
+    rotGrp2.bind("<ButtonRelease-1>", doNothing)
+    rotGrp.pack(side = BOTTOM, pady = 20)
+    rotGrp2.pack(side = BOTTOM, pady = 20, padx = 10)
+    xg.place(x = 1, y = 0)
+    g.pack(side = LEFT)
 
 
 
 def autoScroll():
     lb.insert("end")
     lb.see("end")
-    box.after(10,autoScroll )
+    box.after(1,autoScroll )
 
 #init
 #def consoleBox():

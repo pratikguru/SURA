@@ -14,7 +14,7 @@ box = Tk()
 # frame1
 x = StringVar()
 var =IntVar()
-ardu = serial.Serial('/dev/ttyUSB0', 9600)
+ardu = serial.Serial('/dev/ttyUSB0', 115200)
             
 def openGripper(event):
     #print "gripper Opening"
@@ -27,8 +27,9 @@ def closegripper(event):
     ardu.write('2')
 
 def StopRot(event):
-    #print "stopping"    
-    lb.insert(END,"Stopping all processes")
+    print "stopping_rotation" 
+    ardu.write('s')   
+    lb.insert(END,"rot_stopped")
 
 def exit(event):
     print "Bye"
@@ -70,9 +71,10 @@ def LEDoff():
 def ClockWise(event):
     print("ClockWise Rotation")
     lb.insert(END, "Clockwise rotation")
-
+    ardu.write('4')	
 def antiCW(event):
     print ("Anit-ClockWise rotation")
+    ardu.write('5')
     lb.insert(END, "Anti-ClockWise rotation")
 
 
@@ -128,10 +130,10 @@ def KeyControls():
             box.bind("<KeyRelease-Down>", doNothing)
                         
             box.bind("<Left>", antiCW)
-            box.bind("<KeyRelease-Left>", doNothing)
+            box.bind("<KeyRelease-Left>", StopRot)
                         
             box.bind("<Right>", ClockWise)
-            box.bind("<KeyRelease-Right>", doNothing)
+            box.bind("<KeyRelease-Right>", StopRot)
 
 
 def menu():
@@ -200,7 +202,7 @@ def Control_choice():
     rotGrp = Button(xg,text = "Clock Wise")
     rotGrp2 = Button(xg,text = "Anti-Clock wise")
     rotGrp.bind("<ButtonPress-1>", ClockWise)
-    rotGrp.bind("<ButtonRelease-1>", doNothing)
+    rotGrp.bind("<ButtonRelease-1>", StopRot)
     rotGrp2.bind("<ButtonPress-1>", antiCW)
     rotGrp2.bind("<ButtonRelease-1>", doNothing)
     rotGrp.pack(side = BOTTOM, pady = 20)

@@ -20,12 +20,13 @@ int rotGrip::Rotate_clockWise(){
 
 digitalWrite(this->pin1, HIGH);
 digitalWrite(this->pin2, LOW);
-
+Serial.println("acw");
 }
 
 int rotGrip::Rotate_antiClockWise(){
 digitalWrite(this->pin1, LOW);
 digitalWrite(this->pin2, HIGH);
+Serial.println("cw");
 
 }
 
@@ -33,7 +34,7 @@ int rotGrip::stop_rotation(){
 
     digitalWrite(this->pin1, LOW);
     digitalWrite(this->pin2, LOW);
-    
+    Serial.println("stop");
 }
 
 
